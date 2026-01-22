@@ -62,6 +62,9 @@ export class App {
       // 设置事件监听器
       this.setupEventListeners()
 
+      // 初始调整大小以确保正确渲染
+      this.resize()
+
       // 启动动画循环
       this.startAnimationLoop()
 
@@ -86,6 +89,16 @@ export class App {
     // 鼠标点击事件
     const el = this.renderer.domElement
     el.addEventListener('click', this.click.bind(this))
+
+    // 文件上传
+    const uploadBtn = document.getElementById('upload-btn')
+    const uploadInput = document.getElementById('image-upload')
+    if (uploadBtn && uploadInput) {
+      uploadBtn.addEventListener('click', () => {
+        uploadInput.click()
+      })
+      uploadInput.addEventListener('change', this.handleFileUpload.bind(this))
+    }
 
     // 清理函数
     window.addEventListener('beforeunload', () => {
@@ -198,6 +211,38 @@ export class App {
 
   click(e) {
     this.next()
+  }
+
+  // 文件上传处理
+  handleFileUpload(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    // 检查是否为图片文件
+    if (!file.type.startsWith('image/')) {
+      alert('请选择图片文件')
+      return
+    }
+
+    // 创建对象URL
+    const url = URL.createObjectURL(file)
+
+    // 切换到上传的图片
+    this.loadUploadedImage(url)
+  }
+
+  // 加载上传的图片
+  loadUploadedImage(url) {
+    if (this.particles) {
+      if (this.currSample == null) {
+        this.particles.init(url)
+      } else {
+        this.particles.hide(true).then(() => {
+          this.particles.init(url)
+        })
+      }
+      this.currSample = -1 // 表示使用上传的图片
+    }
   }
 
   // 获取应用状态
