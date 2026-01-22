@@ -4,7 +4,6 @@ import createScene from '../scenes/scene.js'
 import createCamera from '../cameras/camera.js'
 import createRenderer from '../renderers/renderer.js'
 import { CONFIG } from '../config/index.js'
-import { FlowingParticleText } from '../objects/ParticleText.js'
 
 // 主应用类
 export class App {
@@ -12,7 +11,6 @@ export class App {
     this.scene = null
     this.renderer = null
     this.camera = null
-    this.particleText = null
     this.clock = new THREE.Clock()
     this.isInitialized = false
   }
@@ -41,9 +39,6 @@ export class App {
 
       // 设置事件监听器
       this.setupEventListeners()
-
-      // 创建粒子文字效果
-      await this.createParticleText()
 
       // 启动动画循环
       this.startAnimationLoop()
@@ -90,36 +85,12 @@ export class App {
     }
   }
 
-  // 创建粒子文字效果
-  async createParticleText() {
-    try {
-      // 创建流动粒子文字效果
-      this.particleText = new FlowingParticleText(this.scene, 'STAR', {
-        fontSize: 1.5,
-        particleCount: 800,
-        particleSize: 0.03,
-        color: 0x00ffff,
-        flowSpeed: 1.2,
-      })
-
-      await this.particleText.init()
-      console.log('Particle text effect initialized')
-    } catch (error) {
-      console.error('Failed to create particle text:', error)
-    }
-  }
-
   // 启动动画循环
   startAnimationLoop() {
     const render = () => {
       requestAnimationFrame(render)
 
       const deltaTime = this.clock.getDelta()
-
-      // 更新粒子文字效果
-      if (this.particleText) {
-        this.particleText.update(deltaTime)
-      }
 
       // 渲染场景
       this.renderer.render(this.scene, this.camera)
