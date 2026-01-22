@@ -39,9 +39,9 @@ export default class Particles {
     let originalColors
 
     if (discard) {
-      // discard pixels darker than threshold #22
+      // 自适应粒子密度：根据设备性能调整阈值
       numVisible = 0
-      threshold = 34
+      threshold = this.calculateAdaptiveThreshold()
 
       const img = this.texture.image
       const canvas = document.createElement('canvas')
@@ -59,7 +59,9 @@ export default class Particles {
         if (originalColors[i * 4 + 0] > threshold) numVisible++
       }
 
-      // console.log('numVisible', numVisible, this.numPoints);
+      console.log(
+        `粒子统计: 总像素 ${this.numPoints}, 显示粒子 ${numVisible}, 过滤阈值 ${threshold}`
+      )
     }
 
     const uniforms = {
@@ -244,5 +246,90 @@ export default class Particles {
   onInteractiveMove(e) {
     const uv = e.intersectionData.uv
     if (this.touch) this.touch.addTouch(uv)
+  }
+
+  // ---------------------------------------------------------------------------------------------
+  // PERFORMANCE OPTIMIZATION
+  // ---------------------------------------------------------------------------------------------
+
+  /**
+   * 根据设备性能自适应调整粒子密度阈值
+   * 返回值越低，粒子数量越多；返回值越高，粒子数量越少
+   */
+  calculateAdaptiveThreshold() {
+    // 基础阈值
+    let baseThreshold = 34
+
+    // 检测设备性能
+    const performance = this.detectDevicePerformance()
+
+    // 根据性能等级调整阈值
+    switch (performance.level) {
+      case 'low':
+        // 低性能设备：提高阈值，减少粒子数量
+        baseThreshold = Math.max(80, baseThreshold + 30)
+        break
+      case 'medium':
+        // 中等性能：稍微提高阈值
+        baseThreshold = Math.max(50, baseThreshold + 15)
+        break
+      case 'high':
+        // 高性能设备：保持较低阈值，显示更多粒子
+        baseThreshold = Math.max(20, baseThreshold - 10)
+        break
+      default:
+        baseThreshold = 34
+    }
+
+    console.log(`设备性能等级: ${performance.level}, 粒子阈值: ${baseThreshold}`)
+    return baseThreshold
+  }
+
+  /**
+   * 检测设备性能等级
+   */
+  detectDevicePerformance() {
+    const canvas = document.createElement('canvas')
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+
+    if (!gl) {
+      return { level: 'low', reason: 'WebGL not supported' }
+    }
+
+    // 获取GPU信息
+    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
+    const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : ''
+
+    // 检测是否为移动设备
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    )
+
+    // 检测是否为低性能GPU
+    const isLowEndGPU = /Intel.*HD|Intel.*UHD|Mesa|SwiftShader/i.test(renderer)
+
+    // 检测内存大小（如果可用）
+    const deviceMemory = navigator.deviceMemory || 4 // 默认4GB
+
+    // 性能评分
+    let score = 0
+
+    if (!isMobile) score += 2 // 桌面设备加分
+    if (!isLowEndGPU) score += 2 // 高性能GPU加分
+    if (deviceMemory >= 8) score += 1 // 大内存加分
+
+    // 根据分数确定等级
+    let level = 'medium'
+    if (score <= 1) level = 'low'
+    else if (score >= 4) level = 'high'
+
+    return {
+      level,
+      score,
+      renderer,
+      isMobile,
+      deviceMemory,
+      reason: `Score: ${score}, Mobile: ${isMobile}, GPU: ${renderer.substring(0, 30)}...`,
+    }
   }
 }
