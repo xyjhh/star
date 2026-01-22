@@ -7,13 +7,7 @@ export default class WebGLView {
   constructor(app) {
     this.app = app
 
-    this.samples = [
-      'images/sample-01.png',
-      'images/sample-02.png',
-      'images/sample-03.png',
-      'images/sample-04.png',
-      'images/sample-05.png',
-    ]
+    this.samples = ['images/sample-01.jpeg']
 
     this.initThree()
     this.initParticles()

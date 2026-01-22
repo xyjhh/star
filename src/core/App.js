@@ -23,13 +23,7 @@ export class App {
     this.gui = null
     this.fovHeight = 0
 
-    this.samples = [
-      'images/sample-01.png',
-      'images/sample-02.png',
-      'images/sample-03.png',
-      'images/sample-04.png',
-      'images/sample-05.png',
-    ]
+    this.samples = ['images/sample-01.jpeg']
   }
 
   // 初始化应用
