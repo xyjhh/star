@@ -2,8 +2,8 @@ import * as THREE from 'three'
 
 // 创建相机
 export const createCamera = renderer => {
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-  camera.position.set(0, 2, 5) // 设置初始位置
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000)
+  camera.position.z = 300
 
   // 创建第一人称控制器
 

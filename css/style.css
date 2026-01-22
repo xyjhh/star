@@ -8,6 +8,8 @@
 body {
   overflow: hidden;
   font-family: Arial, sans-serif;
+  --color-bg: #0e0e0f; /* 深灰色/黑色 */
+  background-color: var(--color-bg);
 }
 
 #container {

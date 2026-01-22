@@ -57,6 +57,9 @@ export default defineConfig({
     devSourcemap: true,
   },
 
+  // 着色器文件处理
+  assetsInclude: ['**/*.glsl', '**/*.vert', '**/*.frag'],
+
   // 插件配置
   plugins: [
     // 静态资源复制和优化
